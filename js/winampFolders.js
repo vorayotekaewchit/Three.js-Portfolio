@@ -203,9 +203,30 @@
     if (el) playTrack(el);
   }
 
+  function getFirstTrackEl() {
+    var first = document.querySelector(".winamp-folder-tracks li[data-track-path]");
+    return first || null;
+  }
+
+  function playFirstOrSelectedTrack() {
+    if (currentTrackEl) {
+      playTrack(currentTrackEl);
+      return;
+    }
+    var first = getFirstTrackEl();
+    if (first) {
+      lastClick = 0;
+      playTrack(first);
+      return;
+    }
+    var audio = typeof window.getGlobalAudio === "function" ? window.getGlobalAudio() : null;
+    if (audio) audio.play().catch(function () {});
+  }
+
   window.musicTreePrev = prevTrack;
   window.musicTreeNext = nextTrack;
   window.musicTreeHasContext = function () { return !!playbackContext; };
+  window.playFirstOrSelectedTrack = playFirstOrSelectedTrack;
 
   function render(lib) {
     library = lib;
@@ -217,7 +238,7 @@
     if (!lib || lib.length === 0) {
       var empty = document.createElement("li");
       empty.className = "winamp-folder-item winamp-folder-empty";
-      empty.textContent = "Empty folder. Run npm run music-scan and add folders with cover.png + audio to assets/music/.";
+      empty.textContent = "Coming Soon";
       listEl.appendChild(empty);
       if (countEl) countEl.textContent = "0";
       return;
@@ -260,7 +281,7 @@
         tracksUl.appendChild(emptyLi);
       } else {
         tracks.forEach(function (file) {
-          var path = artist + "/" + file;
+          var path = entry.rootTracks ? file : (artist + "/" + file);
           var trackLi = document.createElement("li");
           trackLi.textContent = formatTrackName(file);
           trackLi.title = file;

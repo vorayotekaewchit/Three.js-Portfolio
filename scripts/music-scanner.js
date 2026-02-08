@@ -5,14 +5,14 @@
  * Drop folders with cover.png + audio files → JSON updates → Winamp UI shows new artists.
  */
 
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 const MUSIC_DIR = path.join(process.cwd(), "assets", "music");
 const MUSIC_JSON = path.join(process.cwd(), "assets", "music.json");
 const FOLDERS_JSON = path.join(MUSIC_DIR, "folders.json");
 const AUDIO_EXT = [".mp3", ".flac", ".wav", ".m4a", ".ogg"];
-const COVER_NAMES = ["cover.png", "cover.jpg", "cover.webp", "cover.jpeg"];
+const COVER_NAMES = ["cover.png", "cover.jpg", "cover.webp", "cover.jpeg", "cover.svg"];
 const POLL_INTERVAL_MS = 2000;
 const DEBOUNCE_MS = 400;
 

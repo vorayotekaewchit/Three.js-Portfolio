@@ -177,10 +177,14 @@
     renderer.domElement.addEventListener('mousemove', onMouseMove);
 
     var heroPlayBtn = document.getElementById('hero-play-btn');
-    if (heroPlayBtn && typeof window.getGlobalAudio === 'function') {
+    if (heroPlayBtn) {
       heroPlayBtn.addEventListener('click', function () {
-        var audio = window.getGlobalAudio();
-        if (audio) audio.play().catch(function () {});
+        if (typeof window.playFirstOrSelectedTrack === 'function') {
+          window.playFirstOrSelectedTrack();
+        } else {
+          var audio = typeof window.getGlobalAudio === 'function' ? window.getGlobalAudio() : null;
+          if (audio) audio.play().catch(function () {});
+        }
       });
     }
 

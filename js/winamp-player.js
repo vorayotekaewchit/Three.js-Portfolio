@@ -47,6 +47,10 @@
   }
 
   function play() {
+    if (typeof window.playFirstOrSelectedTrack === 'function') {
+      window.playFirstOrSelectedTrack();
+      return;
+    }
     var a = getAudio();
     if (!a) return;
     if (currentIndex < 0 && playlist.length && (!a.src || a.src === '')) setTrack(0);
