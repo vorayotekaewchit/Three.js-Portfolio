@@ -1,7 +1,7 @@
 /**
- * Audio Analyzer — Web Audio API for audio-reactive visuals.
- * Shared analyser (fftSize 2048) for hero particles and pulse visualizer.
- * Binds viz controls: file input, play/pause, volume, track label.
+ * AudioManager — Web Audio API for audio-reactive visuals (Three.js + viz).
+ * Industry-standard: getFrequencyData(), getWaveformData(), lifecycle (resume on gesture).
+ * Binds viz controls: file input, play/pause, volume, track label, keyboard shortcuts.
  */
 (function () {
   const audio = document.getElementById('global-audio');
@@ -10,6 +10,9 @@
   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
   let analyser = null;
   let source = null;
+  var frequencyData = null;
+  var waveformData = null;
+  var bufferLength = 0;
 
   const vizFileInput = document.querySelector('.viz-file-input');
   const vizPlayBtn = document.querySelector('.viz-btn-play');
@@ -25,12 +28,31 @@
     analyser.smoothingTimeConstant = 0.85;
     source.connect(analyser);
     analyser.connect(audioContext.destination);
+    bufferLength = analyser.frequencyBinCount;
+    frequencyData = new Uint8Array(bufferLength);
+    waveformData = new Uint8Array(analyser.fftSize);
     return analyser;
   }
 
   function getAnalyser() {
     if (!analyser) connectAnalyser();
     return analyser;
+  }
+
+  /** Industry-standard: frequency data for Three.js visualizer (0–255 per bin). */
+  function getFrequencyData() {
+    var a = getAnalyser();
+    if (!frequencyData) return new Uint8Array(0);
+    a.getByteFrequencyData(frequencyData);
+    return frequencyData;
+  }
+
+  /** Industry-standard: waveform (time-domain) data for scope / waveform viz. */
+  function getWaveformData() {
+    var a = getAnalyser();
+    if (!waveformData) return new Uint8Array(0);
+    a.getByteTimeDomainData(waveformData);
+    return waveformData;
   }
 
   function setFilename(name) {
@@ -102,8 +124,45 @@
 
   setControlsEnabled(false);
 
+  // ——— Keyboard shortcuts (Spotify/Apple Music style) ———
+  document.addEventListener('keydown', function (e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    switch (e.key) {
+      case ' ':
+        e.preventDefault();
+        if (audio.paused) {
+          if (typeof window.getGlobalAudio === 'function' && window.getGlobalAudio() === audio) {
+            if (typeof window.playFirstOrSelectedTrack === 'function') {
+              window.playFirstOrSelectedTrack();
+            } else {
+              play();
+            }
+          } else play();
+        } else audio.pause();
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        if (e.shiftKey && typeof window.musicTreeNext === 'function') {
+          window.musicTreeNext();
+        } else if (audio.duration && isFinite(audio.duration)) {
+          audio.currentTime = Math.min(audio.duration, audio.currentTime + 10);
+        }
+        break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        if (e.shiftKey && typeof window.musicTreePrev === 'function') {
+          window.musicTreePrev();
+        } else {
+          audio.currentTime = Math.max(0, audio.currentTime - 10);
+        }
+        break;
+    }
+  });
+
   window.getGlobalAudio = function () { return audio; };
   window.getAudioAnalyser = getAnalyser;
+  window.getFrequencyData = getFrequencyData;
+  window.getWaveformData = getWaveformData;
   window.loadAudioFile = loadFile;
   window.setPlaylistTrack = setPlaylistTrack;
   window.setVizControlsEnabled = setControlsEnabled;

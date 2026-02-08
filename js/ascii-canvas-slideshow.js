@@ -1,22 +1,31 @@
 /**
- * Winamp-style folder browser + ASCII slideshow.
- * State 1: ASCII slideshow (cycles assets/ascii/). State 2: Folder view (artist list from assets/music/).
- * Click artist → lock to that cover.png ASCII and switch back to slideshow view.
+ * ASCII canvas slideshow.
+ * year0001.com: 1510×1510 canvas, CLICK-TO-TOGGLE Image ↔ ASCII (108×63, 512-char density).
+ * Fallback: 80×48 slideshow + folder view when .winamp-ascii-canvas is used.
+ * Depends: character-set.js, image-to-ascii.js (CharacterSet, ImageToAscii on window).
  */
 (function () {
-  var CHARS = " .:-=+*#%@";
-  var ASCII_COLS = 64;
-  var ASCII_ROWS = 64;
+  var ASCII_COLS = 80;
+  var ASCII_ROWS = 48;
+  /* year0001 exact — 108×108 grid, 14px chars, 1512 canvas for pixel-perfect fill */
+  var YEAR0001_COLS = 108;
+  var YEAR0001_ROWS = 108;
+  var YEAR0001_CHAR_SIZE = 14;
+  var YEAR0001_SIZE = 1512;
   var SLIDE_DURATION_MS = 5500;
   var MUSIC_BASE = "assets/music/";
+  var ASSETS_BASE = "assets/";
   var ASCII_BASE = "assets/ascii/";
   var FOLDERS_MANIFEST = "assets/music/folders.json";
   var MUSIC_JSON = "assets/music.json";
   var ASCII_IMAGES_MANIFEST = "assets/ascii/images.json";
   var SUPPORTED_IMAGES = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"];
+  var CHARSET_MODES = ["full", "english", "density"];
+  var MONOSPACE_FONT = "Courier New, Consolas, Liberation Mono, monospace";
 
   var uiState = {
     mode: "slideshow",
+    charsetMode: "full",
     currentArtist: null,
     slideshowIndex: 0,
     slideshowUrls: [],
@@ -52,12 +61,14 @@
       if (!Array.isArray(lib)) return null;
       return lib.map(function (a) {
         var name = (a && a.artist) ? a.artist : "?";
-        var cover = (a && a.cover) ? a.cover : name + "/cover.png";
+        var folderPath = (a && a.folderPath) ? a.folderPath : null;
+        var cover = (a && a.cover) ? a.cover : (folderPath ? folderPath + "/cover.png" : name + "/cover.png");
+        var base = folderPath ? ASSETS_BASE : MUSIC_BASE;
         return {
           name: name,
-          path: name,
+          path: folderPath || name,
           cover: cover,
-          coverUrl: MUSIC_BASE + encodeURIComponent(cover).replace(/%2F/g, "/")
+          coverUrl: base + encodeURIComponent(cover).replace(/%2F/g, "/")
         };
       });
     }
@@ -67,11 +78,12 @@
         var name = (o && o.name) ? o.name : (o.path || "?");
         var path = (o && o.path) ? o.path : name;
         var cover = (o && o.cover) ? o.cover : path + "/cover.png";
+        var base = path.indexOf("/") !== -1 ? ASSETS_BASE : MUSIC_BASE;
         return {
           name: name,
           path: path,
           cover: cover,
-          coverUrl: MUSIC_BASE + encodeURIComponent(cover).replace(/%2F/g, "/")
+          coverUrl: base + encodeURIComponent(cover).replace(/%2F/g, "/")
         };
       });
     }
@@ -144,47 +156,32 @@
       .catch(function () { callback([]); });
   }
 
+  /** Cache key includes charset so switching mode gets correct grid. */
+  function cacheKey(url) {
+    return url + "|" + uiState.charsetMode;
+  }
+
   /**
-   * Generate 80x40 color ASCII grid from image URL. Returns grid[r][c] = { char, r, g, b }.
+   * Generate color ASCII grid from image URL using full 15-level density + charset mode.
+   * On 404, tries alternate cover extension (.png <-> .jpg) so Lune Album cover works.
    */
   function generateAsciiFromImage(url, cols, rows, callback) {
     cols = cols || ASCII_COLS;
     rows = rows || ASCII_ROWS;
-    var img = new Image();
-    if (/^https?:\/\//i.test(url)) img.crossOrigin = "anonymous";
-    img.onload = function () {
-      var grid = imageToAsciiGrid(img, cols, rows);
-      callback(grid);
-    };
-    img.onerror = function () { callback(emptyFolderAsciiGrid(cols, rows)); };
-    img.src = url;
-  }
-
-  function imageToAsciiGrid(img, cols, rows) {
-    var c = document.createElement("canvas");
-    c.width = cols;
-    c.height = rows;
-    var ctx = c.getContext("2d");
-    ctx.drawImage(img, 0, 0, cols, rows);
-    var data = ctx.getImageData(0, 0, cols, rows).data;
-    var grid = [];
-    var len = CHARS.length;
-    for (var r = 0; r < rows; r++) {
-      grid[r] = [];
-      for (var c_ = 0; c_ < cols; c_++) {
-        var i = (r * cols + c_) * 4;
-        var red = data[i];
-        var green = data[i + 1];
-        var blue = data[i + 2];
-        var lum = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
-        var idx = Math.min(len - 1, Math.floor(lum * len));
-        grid[r][c_] = { char: CHARS[idx], r: red, g: green, b: blue };
-      }
+    var opts = { charsetMode: uiState.charsetMode, useSafeChar: true };
+    if (typeof window.ImageToAscii === "undefined") {
+      callback(emptyFolderAsciiGrid(cols, rows));
+      return;
     }
-    return grid;
+    window.ImageToAscii.loadImageAndConvertToAscii(url, cols, rows, opts, callback, function () {
+      callback(emptyFolderAsciiGrid(cols, rows));
+    });
   }
 
   function emptyFolderAsciiGrid(cols, rows) {
+    if (typeof window.ImageToAscii !== "undefined") {
+      return window.ImageToAscii.emptyGrid(cols, rows);
+    }
     var grid = [];
     var gray = 80;
     for (var r = 0; r < rows; r++) {
@@ -216,14 +213,14 @@
         return;
       }
       var artist = artists[index];
-      var key = artist.coverUrl;
+      var key = cacheKey(artist.coverUrl);
       if (uiState.asciiCache[key]) {
         pending--;
         if (pending === 0 && onDone) onDone();
         scheduleNext(index + 1);
         return;
       }
-      generateAsciiFromImage(key, ASCII_COLS, ASCII_ROWS, function (grid) {
+      generateAsciiFromImage(artist.coverUrl, ASCII_COLS, ASCII_ROWS, function (grid) {
         uiState.asciiCache[key] = grid;
         pending--;
         if (pending === 0 && onDone) onDone();
@@ -247,6 +244,294 @@
   var canvas, ctx, captionEl, folderCountEl, foldersListEl, btnSlideshow, btnFolders, asciiView, foldersView;
   var cellW, cellH, lastDpr = 1;
   var lastFontSize = 0;
+
+  /**
+   * year0001.com: Dual-mode renderer — single click toggles RAW IMAGE ↔ ASCII (108×108, pixel-perfect).
+   * Canvas 1512×1512; 14×14px chars; textBaseline=top, textAlign=left for zero gaps.
+   */
+  function ToggleAsciiRenderer(canvasEl) {
+    this.canvas = canvasEl;
+    this.ctx = canvasEl.getContext("2d");
+    this.cols = YEAR0001_COLS;
+    this.rows = YEAR0001_ROWS;
+    this.size = YEAR0001_SIZE;
+    this.charSize = YEAR0001_CHAR_SIZE;
+    this.isAsciiMode = false;
+    this.currentImage = null;
+    this.currentAsciiGrid = null;
+    this.charW = this.charSize;
+    this.charH = this.charSize;
+  }
+
+  ToggleAsciiRenderer.prototype.toggleMode = function () {
+    this.isAsciiMode = !this.isAsciiMode;
+    this.renderFrame();
+    if (this.canvas) {
+      this.canvas.style.transform = "scale(0.98)";
+      var self = this;
+      setTimeout(function () {
+        self.canvas.style.transform = "scale(1)";
+      }, 150);
+    }
+  };
+
+  ToggleAsciiRenderer.prototype.setSource = function (img, asciiGrid) {
+    this.currentImage = img;
+    this.currentAsciiGrid = asciiGrid;
+    this.renderFrame();
+  };
+
+  ToggleAsciiRenderer.prototype.renderFrame = function () {
+    var ctx = this.ctx;
+    var s = this.size;
+    if (!ctx) return;
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, s, s);
+    if (this.isAsciiMode && this.currentAsciiGrid) {
+      this.renderAscii();
+    } else if (this.currentImage && this.currentImage.complete && this.currentImage.naturalWidth) {
+      ctx.drawImage(this.currentImage, 0, 0, s, s);
+    }
+  };
+
+  ToggleAsciiRenderer.prototype.renderAscii = function () {
+    var grid = this.currentAsciiGrid;
+    if (!grid || !this.ctx) return;
+    var ctx = this.ctx;
+    var cs = this.charSize;
+    ctx.font = cs + "px " + MONOSPACE_FONT;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    for (var r = 0; r < grid.length; r++) {
+      for (var c = 0; c < (grid[r] && grid[r].length); c++) {
+        var cell = grid[r][c];
+        if (!cell || !cell.char) continue;
+        ctx.fillStyle = "rgb(" + (cell.r || 255) + "," + (cell.g || 255) + "," + (cell.b || 255) + ")";
+        ctx.fillText(cell.char, c * cs, r * cs);
+      }
+    }
+  };
+
+  /** Derive tag and title from image URL and index (year0001-style: tag = short id, title = display name). */
+  function slugFromUrl(url, index) {
+    var filename = (url && url.split("/").pop()) ? decodeURIComponent(url.split("/").pop()) : "";
+    var base = filename.replace(/\.[^.]+$/, "").trim() || "slide";
+    var tag = String(index + 1).padStart(2, "0");
+    var title = base.replace(/[-_]+/g, " ");
+    return { tag: tag, title: title };
+  }
+
+  function initYear0001Toggle() {
+    var canvasEl = document.querySelector(".landingSlideshow-asciiCanvas");
+    var captionEl = document.getElementById("winamp-ascii-caption");
+    var slidesContainer = document.getElementById("ascii-slides-container");
+    var navContainer = document.getElementById("ascii-slideshow-nav");
+    var tagEl = document.getElementById("ascii-slide-tag");
+    var titleEl = document.getElementById("ascii-slide-title");
+    var bodyEl = document.getElementById("ascii-slide-body");
+    if (!canvasEl || !canvasEl.getContext("2d")) return;
+    canvasEl.width = YEAR0001_SIZE;
+    canvasEl.height = YEAR0001_SIZE;
+    var renderer = new ToggleAsciiRenderer(canvasEl);
+    var slideIndex = 0;
+    var slideUrls = [];
+    var asciiCache = {};
+    var slideTimer = null;
+    var inView = true;
+    var tabVisible = !document.hidden;
+
+    function cacheKeyYear(url) {
+      return url + "|full";
+    }
+
+    function updateCaption() {
+      if (!captionEl) return;
+      var base = renderer.isAsciiMode ? "Click to see image" : "Click to see ASCII";
+      if (slideUrls.length > 1) {
+        captionEl.textContent = base + " — Slide " + (slideIndex + 1) + "/" + slideUrls.length;
+      } else {
+        captionEl.textContent = base;
+      }
+    }
+
+    function showSlide(img, grid) {
+      renderer.setSource(img, grid);
+      updateCaption();
+    }
+
+    /** Build year0001-style slide divs: img + slide-text (tag, title). */
+    function buildSlidesDOM(urls) {
+      if (!slidesContainer || !urls.length) return;
+      slidesContainer.innerHTML = "";
+      urls.forEach(function (url, i) {
+        var meta = slugFromUrl(url, i);
+        var slide = document.createElement("div");
+        slide.className = "landingSlideshow-slide" + (i === 0 ? " active" : "");
+        slide.setAttribute("data-category", "ascii");
+        slide.setAttribute("data-url", "#ascii");
+        var img = document.createElement("img");
+        img.width = 150;
+        img.className = "landingSlideshow-image";
+        img.alt = meta.title;
+        if (/^https?:/i.test(url)) img.crossOrigin = "anonymous";
+        img.src = url;
+        slide.appendChild(img);
+        var textBlock = document.createElement("div");
+        textBlock.className = "landingSlideshow-slide-text";
+        textBlock.innerHTML = "<span class=\"landingSlideshow-slide-tag\">" + meta.tag + "</span><span class=\"landingSlideshow-slide-title\">" + meta.title + "</span><span class=\"landingSlideshow-slide-body\"></span>";
+        slide.appendChild(textBlock);
+        slidesContainer.appendChild(slide);
+      });
+    }
+
+    /** Build nav items (year0001: ": TAG" per slide), click -> goToSlide(i). */
+    function buildNavDOM(urls, goToFn) {
+      if (!navContainer || !urls.length) return;
+      navContainer.innerHTML = "";
+      urls.forEach(function (url, i) {
+        var meta = slugFromUrl(url, i);
+        var span = document.createElement("span");
+        span.className = "landingSlideshow-nav-item" + (i === 0 ? " active" : "");
+        span.textContent = ": " + meta.tag;
+        span.setAttribute("role", "button");
+        span.setAttribute("tabindex", "0");
+        span.addEventListener("click", function () {
+          if (typeof goToFn === "function") goToFn(i);
+        });
+        span.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            if (typeof goToFn === "function") goToFn(i);
+          }
+        });
+        navContainer.appendChild(span);
+      });
+    }
+
+    /** Sync overlay text and active states (year0001: tag, title, body + active slide/nav). */
+    function updateOverlayAndActive(index) {
+      if (slideUrls.length === 0) return;
+      var meta = slugFromUrl(slideUrls[index], index);
+      if (tagEl) tagEl.textContent = meta.tag;
+      if (titleEl) titleEl.textContent = meta.title;
+      if (bodyEl) bodyEl.textContent = "";
+      var slides = slidesContainer ? slidesContainer.querySelectorAll(".landingSlideshow-slide") : [];
+      slides.forEach(function (s, i) {
+        s.classList.toggle("active", i === index);
+      });
+      var navItems = navContainer ? navContainer.querySelectorAll(".landingSlideshow-nav-item") : [];
+      navItems.forEach(function (n, i) {
+        n.classList.toggle("active", i === index);
+      });
+    }
+
+    function loadSlideshowUrls(cb) {
+      fetch(ASCII_IMAGES_MANIFEST)
+        .then(function (r) {
+          if (!r.ok) throw new Error(r.status + " " + r.statusText);
+          return r.json();
+        })
+        .then(function (arr) {
+          if (!Array.isArray(arr)) arr = [];
+          var list = arr.filter(function (x) {
+            return typeof x === "string" && x.trim() && SUPPORTED_IMAGES.some(function (ext) {
+              return x.toLowerCase().trim().endsWith(ext);
+            });
+          });
+          cb(list.map(function (f) { return ASCII_BASE + encodeURIComponent(f.trim()); }));
+        })
+        .catch(function () { cb([]); });
+    }
+
+    function generateAsciiYear(url, cb) {
+      var opts = { charsetMode: "pixelperfect", useSafeChar: false };
+      if (typeof window.ImageToAscii === "undefined") {
+        cb(null);
+        return;
+      }
+      window.ImageToAscii.loadImageAndConvertToAscii(url, YEAR0001_COLS, YEAR0001_ROWS, opts, cb, function () { cb(null); });
+    }
+
+    function goToSlide(index) {
+      if (slideUrls.length === 0) return;
+      slideIndex = index % slideUrls.length;
+      if (slideIndex < 0) slideIndex += slideUrls.length;
+      var url = slideUrls[slideIndex];
+      var key = cacheKeyYear(url);
+      var grid = asciiCache[key];
+      var img = new Image();
+      if (/^https?:/i.test(url)) img.crossOrigin = "anonymous";
+      img.onload = function () {
+        if (!grid) {
+          generateAsciiYear(url, function (g) {
+            asciiCache[key] = g;
+            showSlide(img, g);
+            updateOverlayAndActive(slideIndex);
+          });
+        } else {
+          showSlide(img, grid);
+          updateOverlayAndActive(slideIndex);
+        }
+      };
+      img.onerror = function () {
+        showSlide(null, grid || null);
+        updateOverlayAndActive(slideIndex);
+      };
+      img.src = url;
+    }
+
+    function scheduleSlide() {
+      if (slideTimer) clearTimeout(slideTimer);
+      if (slideUrls.length <= 1) return;
+      slideTimer = setTimeout(function () {
+        if (!tabVisible || !inView) {
+          scheduleSlide();
+          return;
+        }
+        goToSlide(slideIndex + 1);
+        scheduleSlide();
+      }, SLIDE_DURATION_MS);
+    }
+
+    canvasEl.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      renderer.toggleMode();
+      updateCaption();
+      if (navigator.vibrate) navigator.vibrate(10);
+    });
+
+    document.addEventListener("visibilitychange", function () {
+      tabVisible = !document.hidden;
+    });
+
+    var section = canvasEl.closest(".section-ascii") || canvasEl.closest("section");
+    if (section) {
+      var io = new IntersectionObserver(function (entries) {
+        inView = entries[0].isIntersecting;
+      }, { threshold: 0.05, rootMargin: "80px" });
+      io.observe(section);
+    }
+
+    loadSlideshowUrls(function (urls) {
+      slideUrls = urls;
+      if (urls.length === 0) {
+        if (captionEl) captionEl.textContent = "Drop images in assets/ascii/ and list them in assets/ascii/images.json";
+        if (tagEl) tagEl.textContent = "—";
+        if (titleEl) titleEl.textContent = "No images";
+        var emptyCtx = canvasEl.getContext("2d");
+        if (emptyCtx) {
+          emptyCtx.fillStyle = "#0a0a0a";
+          emptyCtx.fillRect(0, 0, YEAR0001_SIZE, YEAR0001_SIZE);
+        }
+        return;
+      }
+      buildSlidesDOM(slideUrls);
+      buildNavDOM(slideUrls, goToSlide);
+      goToSlide(0);
+      scheduleSlide();
+    });
+  }
 
   function getElements() {
     canvas = document.querySelector(".winamp-ascii-canvas");
@@ -291,7 +576,7 @@
     ctx.fillRect(0, 0, cssW, cssH);
     if (fontSize !== lastFontSize) {
       lastFontSize = fontSize;
-      ctx.font = fontSize + "px \"IBM Plex Mono\", monospace";
+      ctx.font = fontSize + "px " + MONOSPACE_FONT;
     }
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -329,17 +614,24 @@
   function showCurrentSlide() {
     var grid = null;
     var caption = "";
+    var url;
     if (uiState.currentArtist) {
-      grid = uiState.asciiCache[uiState.currentArtist.coverUrl] || null;
-      caption = "Now playing: " + uiState.currentArtist.name + " — cover.png";
+      url = uiState.currentArtist.coverUrl;
+      grid = uiState.asciiCache[cacheKey(url)] || null;
+      caption = "Now playing: " + uiState.currentArtist.name + " — cover";
     } else if (uiState.slideshowUrls.length > 0) {
-      var url = uiState.slideshowUrls[uiState.slideshowIndex];
-      if (uiState.asciiCache[url]) {
-        grid = uiState.asciiCache[url];
-      }
+      url = uiState.slideshowUrls[uiState.slideshowIndex];
+      grid = uiState.asciiCache[cacheKey(url)] || null;
       caption = "Breakcore Visions - Slide " + (uiState.slideshowIndex + 1) + "/" + uiState.slideshowUrls.length;
     } else {
       caption = "Drop images in assets/ascii/ and list them in assets/ascii/images.json";
+    }
+    if (!grid && url) {
+      generateAsciiFromImage(url, ASCII_COLS, ASCII_ROWS, function (g) {
+        uiState.asciiCache[cacheKey(url)] = g;
+        showCurrentSlide();
+      });
+      return;
     }
     if (captionEl) captionEl.textContent = caption;
     if (grid) renderGrid(grid);
@@ -353,7 +645,7 @@
     if (uiState.artists.length === 0) {
       var li = document.createElement("li");
       li.className = "winamp-folder-item winamp-folder-empty";
-      li.textContent = "Drop music folders here! (Add folders with cover.png to assets/music/ and list in folders.json)";
+      li.textContent = "Drop music folders here! (Add folders to assets/music/ or assets/ascii/, or any folder with cover.png + audio)";
       foldersListEl.appendChild(li);
     } else {
       uiState.artists.forEach(function (artist, idx) {
@@ -401,11 +693,12 @@
       if (!uiState.tabVisible || !uiState.inView || uiState.currentArtist) return;
       uiState.slideshowIndex = (uiState.slideshowIndex + 1) % uiState.slideshowUrls.length;
       var url = uiState.slideshowUrls[uiState.slideshowIndex];
-      if (uiState.asciiCache[url]) {
+      var key = cacheKey(url);
+      if (uiState.asciiCache[key]) {
         showCurrentSlide();
       } else {
         generateAsciiFromImage(url, ASCII_COLS, ASCII_ROWS, function (grid) {
-          uiState.asciiCache[url] = grid;
+          uiState.asciiCache[key] = grid;
           showCurrentSlide();
         });
       }
@@ -419,6 +712,10 @@
   }
 
   function init() {
+    if (document.querySelector(".landingSlideshow-asciiCanvas")) {
+      initYear0001Toggle();
+      return;
+    }
     getElements();
     if (!canvas) return;
 
@@ -431,13 +728,14 @@
         name: folder.name,
         path: folder.name,
         cover: folder.cover || folder.name + "/cover.png",
-        coverUrl: folder.coverUrl || MUSIC_BASE + (folder.cover || folder.name + "/cover.png")
+        coverUrl: folder.coverUrl || ASSETS_BASE + (folder.cover || folder.path + "/cover.png")
       };
-      if (uiState.asciiCache[uiState.currentArtist.coverUrl]) {
+      var key = cacheKey(uiState.currentArtist.coverUrl);
+      if (uiState.asciiCache[key]) {
         showCurrentSlide();
       } else {
         generateAsciiFromImage(uiState.currentArtist.coverUrl, ASCII_COLS, ASCII_ROWS, function (grid) {
-          uiState.asciiCache[uiState.currentArtist.coverUrl] = grid;
+          uiState.asciiCache[key] = grid;
           showCurrentSlide();
         });
       }
@@ -502,19 +800,21 @@
       function tryShowFirst() {
         if (firstShown) return;
         var url = urls[0];
-        if (!uiState.asciiCache[url]) return;
+        var key = cacheKey(url);
+        if (!uiState.asciiCache[key]) return;
         firstShown = true;
         uiState.slideshowIndex = 0;
         showCurrentSlide();
         scheduleSlideshow();
       }
       urls.forEach(function (url, i) {
-        if (uiState.asciiCache[url]) {
+        var key = cacheKey(url);
+        if (uiState.asciiCache[key]) {
           if (i === 0) tryShowFirst();
           return;
         }
         generateAsciiFromImage(url, ASCII_COLS, ASCII_ROWS, function (grid) {
-          uiState.asciiCache[url] = grid;
+          uiState.asciiCache[key] = grid;
           if (i === 0) tryShowFirst();
         });
       });

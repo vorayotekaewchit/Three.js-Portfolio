@@ -31,7 +31,7 @@
         <li class="navList-item"><a href="#about" class="typography-nav">About</a></li>
         <li class="navList-item"><a href="#projects" class="typography-nav">Projects</a></li>
         <li class="navList-item"><a href="#contact" class="typography-nav">Contact</a></li>
-        <li class="navList-item"><a href="https://github.com/vorayote" target="_blank" rel="noopener" class="typography-nav">GitHub</a></li>
+        <li class="navList-item"><a href="https://github.com/vorayotekaewchit target="_blank" rel="noopener" class="typography-nav">GitHub</a></li>
       </ul>
     </nav>
   </header>
@@ -58,10 +58,30 @@
     </div>
 
     <section class="section section-ascii section-winamp ascii-slideshow" id="ascii" aria-label="ASCII slideshow">
-      <div class="winamp-ascii-wrap winamp-ascii-wrap--square">
-        <canvas class="winamp-ascii-canvas" width="520" height="520" aria-hidden="true"></canvas>
+      <div class="landingSlideshow landingSlideshow--ascii">
+        <div class="landingSlideshow-canvasContainer landingSlideshow-asciiWrap">
+          <a class="landingSlideshow-canvasLink" href="#ascii" aria-label="View slideshow">
+            <canvas class="landingSlideshow-asciiCanvas" width="1512" height="1512" aria-label="Click to toggle image or ASCII art" title="Click to toggle image / ASCII"></canvas>
+          </a>
+        </div>
+        <a class="landingSlideshow-text landingSlideshow-text--ascii" href="#ascii">
+          <div class="landingSlideshow-text-tagContainer">
+            <span class="landingSlideshow-text-tag typography-caseTag" id="ascii-slide-tag">—</span>
+            <span class="landingSlideshow-text-tagCursor blink" aria-hidden="true"></span>
+          </div>
+          <h2 class="landingSlideshow-text-title typography-caseTitle" id="ascii-slide-title">Loading…</h2>
+          <div class="landingSlideshow-text-body">
+            <span class="landingSlideshow-text-bodySpan" id="ascii-slide-body"></span>
+            <div class="landingSlideshow-text-arrowContainer">
+              <div class="landingSlideshow-text-arrow" aria-hidden="true"></div>
+              &gt;
+            </div>
+          </div>
+        </a>
+        <div class="landingSlideshow-slides" id="ascii-slides-container" aria-hidden="true"></div>
+        <div class="landingSlideshow-nav leftBottomText typography-nav" id="ascii-slideshow-nav" aria-label="Slideshow navigation"></div>
       </div>
-      <p class="winamp-caption typography-nav" id="winamp-ascii-caption">Loading…</p>
+      <p class="winamp-caption typography-nav landingSlideshow-asciiCaption" id="winamp-ascii-caption">Loading…</p>
     </section>
 
     <main id="main" class="main-container">
@@ -131,8 +151,8 @@
             <li><a href="#">Tattoo</a></li>
             <li><a href="#">Maison Amilli</a></li>
             <li><a href="#">IRK Magazine</a></li>
-            <li><a href="https://github.com/vorayote" target="_blank" rel="noopener">GitHub</a></li>
-            <li><a href="https://soundcloud.com" target="_blank" rel="noopener">SoundCloud</a></li>
+            <li><a href="https://github.com/vorayotekaewchit" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://soundcloud.com/vorayotekaewchit" target="_blank" rel="noopener">SoundCloud</a></li>
           </ul>
         </div>
       </section>
@@ -204,7 +224,9 @@
   <script src="js/winampFolders.js" defer></script>
   <script src="js/main.js" defer></script>
   <script src="js/nav-logo.js" defer></script>
-  <script src="js/winamp-ascii.js" defer></script>
+  <script src="js/character-set.js" defer></script>
+  <script src="js/image-to-ascii.js" defer></script>
+  <script src="js/ascii-canvas-slideshow.js" defer></script>
   <script src="js/hero.js" defer></script>
   <script src="js/hero-hybrid-viz.js" defer></script>
   <script src="js/pulse-visualizer.js" defer></script>

@@ -7,6 +7,7 @@
   var MUSIC_JSON = "assets/music.json";
   var FOLDERS_JSON = "assets/music/folders.json";
   var MUSIC_BASE = "assets/music/";
+  var ASSETS_BASE = "assets/";
   var STORAGE_KEY = "winampFolders";
   var DEBOUNCE_MS = 150;
 
@@ -72,7 +73,9 @@
                 lib.forEach(function (e) { byArtist[e.artist] = e; });
                 var merged = arr.map(function (o) {
                   var name = o.name || o.path || "?";
-                  return byArtist[name] || { artist: name, cover: (o.cover || name + "/cover.png"), tracks: [] };
+                  var pathOrFolder = o.path || name;
+                  var cover = o.cover || pathOrFolder + "/cover.png";
+                  return byArtist[name] || { artist: name, path: pathOrFolder, folderPath: pathOrFolder.indexOf("/") !== -1 ? pathOrFolder : null, cover: cover, tracks: [] };
                 });
                 callback(merged);
               })
@@ -121,9 +124,10 @@
     var artist = trackEl.dataset.artist;
     var cover = trackEl.dataset.cover;
     var coverUrl = trackEl.dataset.coverUrl;
+    var base = trackEl.dataset.base || MUSIC_BASE;
     if (!trackPath) return;
 
-    var url = MUSIC_BASE + encodeURIComponent(trackPath).replace(/%2F/g, "/");
+    var url = base + encodeURIComponent(trackPath).replace(/%2F/g, "/");
     var displayName = formatTrackName(trackPath.split("/").pop() || trackPath);
 
     if (typeof window.setPlaylistTrack === "function") {
@@ -147,7 +151,12 @@
     }
 
     /* Prev/Next context */
-    var entry = library.find(function (e) { return e.artist === artist; });
+    var pathPrefix = trackPath.replace(/\/[^/]+$/, "");
+    var entry = library.find(function (e) {
+      var p = e.folderPath || e.path || e.artist;
+      return p === pathPrefix || (e.artist === artist && (e.folderPath || e.path || e.artist) === pathPrefix);
+    });
+    if (!entry) entry = library.find(function (e) { return e.artist === artist; });
     var tracks = (entry && entry.tracks) || [];
     var idx = tracks.indexOf(trackPath.split("/").pop());
     playbackContext = entry && idx >= 0 ? { entry: entry, trackIndex: idx, tracks: tracks } : null;
@@ -188,7 +197,8 @@
     var ctx = playbackContext;
     if (ctx.trackIndex <= 0) return;
     var prevFile = ctx.tracks[ctx.trackIndex - 1];
-    var path = ctx.entry.artist + "/" + prevFile;
+    var pathPrefix = ctx.entry.folderPath || ctx.entry.path || ctx.entry.artist;
+    var path = pathPrefix + "/" + prevFile;
     var el = findTrackEl(path);
     if (el) playTrack(el);
   }
@@ -198,7 +208,8 @@
     var ctx = playbackContext;
     if (ctx.trackIndex >= ctx.tracks.length - 1) return;
     var nextFile = ctx.tracks[ctx.trackIndex + 1];
-    var path = ctx.entry.artist + "/" + nextFile;
+    var pathPrefix = ctx.entry.folderPath || ctx.entry.path || ctx.entry.artist;
+    var path = pathPrefix + "/" + nextFile;
     var el = findTrackEl(path);
     if (el) playTrack(el);
   }
@@ -230,6 +241,12 @@
 
   function render(lib) {
     library = lib;
+    if (typeof console !== "undefined" && console.log && lib && lib.length) {
+      lib.forEach(function (entry) {
+        var n = (entry.tracks && entry.tracks.length) || 0;
+        console.log("Loaded " + (entry.artist || "?") + ": " + n + " track(s) found");
+      });
+    }
     var listEl = document.getElementById("winamp-folders-list");
     var countEl = document.getElementById("winamp-folder-count");
     if (!listEl) return;
@@ -247,9 +264,11 @@
     var fragment = document.createDocumentFragment();
     lib.forEach(function (entry) {
       var artist = entry.artist || "?";
-      var cover = entry.cover || artist + "/cover.png";
+      var pathPrefix = entry.folderPath || entry.path || artist;
+      var cover = entry.cover || pathPrefix + "/cover.png";
       var tracks = Array.isArray(entry.tracks) ? entry.tracks : [];
-      var coverUrl = MUSIC_BASE + cover.replace(/\/\/+/g, "/");
+      var base = (entry.folderPath || (entry.path && entry.path.indexOf("/") !== -1)) ? ASSETS_BASE : MUSIC_BASE;
+      var coverUrl = base + cover.replace(/\/\/+/g, "/");
       var folderId = getFolderId(artist);
       var expanded = folderState[folderId] !== false;
 
@@ -281,11 +300,12 @@
         tracksUl.appendChild(emptyLi);
       } else {
         tracks.forEach(function (file) {
-          var path = entry.rootTracks ? file : (artist + "/" + file);
+          var path = entry.rootTracks ? file : (pathPrefix + "/" + file);
           var trackLi = document.createElement("li");
           trackLi.textContent = formatTrackName(file);
           trackLi.title = file;
           trackLi.dataset.trackPath = path;
+          trackLi.dataset.base = base;
           trackLi.dataset.artist = artist;
           trackLi.dataset.cover = cover;
           trackLi.dataset.coverUrl = coverUrl;

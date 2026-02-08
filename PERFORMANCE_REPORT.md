@@ -20,7 +20,7 @@
 
 ### JavaScript
 - **pulse-visualizer.js:** Cached `barStep`/`barW`; update BASS/MID/HIGH text only when value changed (`lastBass`/`lastMid`/`lastHigh`).
-- **winamp-ascii.js:** Cached `lastFontSize` so `ctx.font` is set only when scale changes; precache artist ASCII with `requestIdleCallback` (one-by-one in idle time).
+- **ascii-canvas-slideshow.js:** Cached `lastFontSize` so `ctx.font` is set only when scale changes; precache artist ASCII with `requestIdleCallback` (one-by-one in idle time).
 - **main.js:** Cached `document.querySelectorAll('section[id]')`; loop with early break when current section found.
 - **page-scroll-manager.js:** Debounced history `replaceState` (150ms) to avoid scroll-handler spam.
 - **swiss-visualizer.js:** Removed `geometry.computeVertexNormals()` per frame (MeshBasicMaterial doesn’t need it).
@@ -93,7 +93,7 @@
 - `index.html` — preload, defer, crossorigin
 - `styles.css` — GPU/contain, content-visibility
 - `js/pulse-visualizer.js` — cache math, conditional DOM updates
-- `js/winamp-ascii.js` — font cache, requestIdleCallback precache
+- `js/ascii-canvas-slideshow.js` — font cache, requestIdleCallback precache
 - `js/main.js` — cached sections
 - `js/page-scroll-manager.js` — debounced history
 - `js/swiss-visualizer.js` — removed computeVertexNormals
