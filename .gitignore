@@ -8,3 +8,6 @@ dist/
 
 # OS
 .DS_Store
+
+# Large audio (keep locally; use external host or Git LFS if needed)
+assets/music/**/*.wav
