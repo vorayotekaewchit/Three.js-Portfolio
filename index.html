@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta name="description" content="Vorayote Kaewchit — Full-stack · Creative Code · Music · Tattoo. Paris-based developer and music producer.">
+  <title>Vorayote Kaewchit</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="styles.css" as="style">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="pages home" id="barba-wrapper">
+  <!-- VK Lock Screen — landing = ONLY this until unlock -->
+  <div class="lock-screen" id="lockScreen" aria-live="polite" aria-label="Access gate">
+    <div class="lock-content">
+      <div class="vk-logo">V K</div>
+      <form class="lock-form">
+        <input type="password" id="passwordInput" placeholder="Access code" autocomplete="off" aria-label="Access code">
+        <button type="submit" class="enter-btn">ENTER</button>
+      </form>
+      <div class="attempts" id="attempts" data-attempts="5">5 attempts remaining</div>
+    </div>
+  </div>
+
+  <!-- HIDDEN behind lock — shown after correct password -->
+  <div class="portfolio-content portfolio-content--locked" id="portfolioContent">
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <header>
+    <nav class="nav" aria-label="Main">
+      <a class="navLogo" href="/" aria-label="Home">
+        <div class="navLogo-face-front">
+          <canvas class="navLogo-circle" width="50" height="50" aria-hidden="true"></canvas>
+          <span class="navLogo-text">VK</span>
+        </div>
+        <div class="navLogo-face-back"></div>
+      </a>
+      <button type="button" class="navMobileButton" aria-label="Toggle menu" aria-expanded="false">Menu</button>
+      <ul class="navList">
+        <li class="navList-item"><a href="#viz" class="typography-nav">Viz</a></li>
+        <li class="navList-item"><a href="#viz" class="typography-nav">Music</a></li>
+        <li class="navList-item"><a href="#about" class="typography-nav">About</a></li>
+        <li class="navList-item"><a href="#projects" class="typography-nav">Projects</a></li>
+        <li class="navList-item"><a href="#contact" class="typography-nav">Contact</a></li>
+        <li class="navList-item"><a href="https://github.com/vorayote" target="_blank" rel="noopener" class="typography-nav">GitHub</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="barba-container">
+    <div id="landing-hero" class="landing-hero landingSlideshow">
+      <div class="landingSlideshow-text">
+        <div class="landingSlideshow-text-tagContainer">
+          <span class="landingSlideshow-text-tag typography-title">PORTFOLIO</span>
+          <span class="landingSlideshow-text-tagCursor"></span>
+        </div>
+        <h1 class="landingSlideshow-text-title typography-largeTag shadow">VORAYOTE KAEWCHIT</h1>
+        <div class="landingSlideshow-text-body typography-p">
+          <span class="landingSlideshow-text-bodySpan">Full-stack · Creative Code · Music · Tattoo</span>
+          <div class="landingSlideshow-text-arrowContainer">
+            <div class="landingSlideshow-text-arrow"></div>
+            &gt;
+          </div>
+        </div>
+      </div>
+      <div class="hero-particles" id="hero-particles" aria-hidden="true"></div>
+      <div class="landingSlideshow-nav leftBottomText typography-nav">Scroll</div>
+    </div>
+
+    <section class="section section-ascii section-winamp ascii-slideshow" id="ascii" aria-label="ASCII slideshow">
+      <div class="winamp-ascii-wrap winamp-ascii-wrap--square">
+        <canvas class="winamp-ascii-canvas" width="520" height="520" aria-hidden="true"></canvas>
+      </div>
+      <p class="winamp-caption typography-nav" id="winamp-ascii-caption">Loading…</p>
+    </section>
+
+    <main id="main" class="main-container">
+      <section class="section section-viz" id="viz">
+        <div class="viz-ui">
+          <p class="viz-label typography-caseTag">SYSTEM 01 / REF 20-24</p>
+          <h2 class="viz-title typography-caseTitle">Audio Visualizer.</h2>
+          <div class="viz-readouts">
+            <span class="viz-readout"><em>BASS</em> <strong class="viz-value viz-bass">000</strong></span>
+            <span class="viz-readout"><em>MID</em> <strong class="viz-value viz-mid">000</strong></span>
+            <span class="viz-readout"><em>HIGH</em> <strong class="viz-value viz-high">000</strong></span>
+          </div>
+          <div class="viz-playlist-wrap">
+            <div class="winamp-folders-panel" id="winamp-folders-panel">
+              <button type="button" class="winamp-folders-toggle" id="winamp-folders-toggle" aria-expanded="true" aria-controls="winamp-folders-list-wrap">
+                MUSIC LIBRARY (<span id="winamp-folder-count">0</span>)
+              </button>
+              <div class="winamp-folders-list-wrap" id="winamp-folders-list-wrap" aria-hidden="false">
+                <ul class="winamp-folders-list" id="winamp-folders-list" role="listbox" aria-label="Artist folders"></ul>
+              </div>
+            </div>
+          </div>
+          <p class="viz-track">No track loaded. Drop audio or use playlist.</p>
+          <div class="viz-progress-wrap">
+            <input type="range" class="viz-seek" id="winamp-seek" min="0" max="100" value="0" aria-label="Seek">
+            <span class="viz-time" id="winamp-time">0:00 / 0:00</span>
+          </div>
+          <div class="viz-controls">
+            <button type="button" class="viz-btn viz-btn-prev" aria-label="Previous">◀ Prev</button>
+            <button type="button" class="viz-btn viz-btn-play" aria-label="Play" disabled>Play</button>
+            <button type="button" class="viz-btn viz-btn-pause" aria-label="Pause" disabled>Pause</button>
+            <button type="button" class="viz-btn viz-btn-next" aria-label="Next">Next ▶</button>
+            <label class="viz-vol-label">
+              Vol
+              <input type="range" class="viz-volume" id="winamp-volume" min="0" max="100" value="80" aria-label="Volume">
+            </label>
+            <label class="viz-load-label">
+              Load file
+              <input type="file" class="viz-file-input" accept="audio/*" aria-label="Load audio">
+            </label>
+          </div>
+        </div>
+        <div class="viz-canvas-wrap" id="viz-drop-zone">
+          <canvas class="viz-canvas" id="swiss-viz" aria-hidden="true"></canvas>
+        </div>
+      </section>
+
+      <section class="section section-about" id="about">
+        <div class="section-inner">
+          <p class="section-tag typography-caseTag">About</p>
+          <h2 class="section-title typography-caseTitle">Vorayote Kaewchit</h2>
+          <div class="section-body typography-p">
+            <p>Fashion background, then full-stack development. Now working across AI, music, and creative code. Paris-based.</p>
+            <p>Stack: Ableton, Three.js, Figma, Cursor, and more. Languages: French, English, Thai.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-projects" id="projects">
+        <div class="section-inner">
+          <p class="section-tag typography-caseTag">Projects</p>
+          <h2 class="section-title typography-caseTitle">Work</h2>
+          <ul class="project-list">
+            <li><a href="#">Life OS</a></li>
+            <li><a href="#">WebGL portfolio</a></li>
+            <li><a href="#">Music</a></li>
+            <li><a href="#">Tattoo</a></li>
+            <li><a href="#">Maison Amilli</a></li>
+            <li><a href="#">IRK Magazine</a></li>
+            <li><a href="https://github.com/vorayote" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://soundcloud.com" target="_blank" rel="noopener">SoundCloud</a></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section section-contact" id="contact">
+        <div class="section-inner">
+        <p class="section-tag typography-caseTag">Contact</p>
+        <h2 class="section-title typography-caseTitle">Get in touch</h2>
+        <div class="section-body contact-list typography-p">
+            <p><a href="mailto:hello@vorayote.com">Email</a></p>
+            <p><a href="https://www.linkedin.com/in/vorayote-kaewchit?utm_source=share_via&utm_content=profile&utm_medium=member_ios" target="_blank" rel="noopener">LinkedIn</a></p>
+            <p><a href="https://github.com/vorayotekaewchit" target="_blank" rel="noopener">GitHub</a></p>
+            <p><a href="https://soundcloud.com/vorayotekaewchit" target="_blank" rel="noopener">SoundCloud</a></p>
+            <p>Full resume on LinkedIn.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+      <ul class="navList-footer">
+        <li class="navList-item"><a href="#about" class="typography-nav">About</a></li>
+        <li class="navList-item"><a href="#viz" class="typography-nav">Music</a></li>
+        <li class="navList-item"><a href="#contact" class="typography-nav">Contact</a></li>
+        <li class="navList-item"><a href="https://github.com/vorayote" target="_blank" rel="noopener" class="typography-nav">GitHub</a></li>
+      </ul>
+        <span class="newsLetterSignup"></span>
+        <span class="footerText">© 2026 Vorayote Kaewchit. All rights reserved.</span>
+        <span class="footerText">Paris, France · <a href="mailto:hello@vorayote.com">hello@vorayote.com</a></span>
+        <span class="footerText-mobile">
+          © 2026 Vorayote Kaewchit<br>
+          <a href="mailto:hello@vorayote.com">hello@vorayote.com</a>
+        </span>
+        <svg class="footerImg" xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 80 80" aria-hidden="true">
+          <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 2"/>
+          <text x="40" y="48" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="currentColor" text-anchor="middle">VK</text>
+        </svg>
+      </footer>
+    </main>
+  </div>
+
+  <div class="siteLoader" id="site-loader" aria-hidden="true">
+    <div class="siteLoader-logo">
+      <canvas class="siteLoader-circle" width="50" height="50" aria-hidden="true"></canvas>
+      <span class="siteLoader-logo-text">VK</span>
+    </div>
+    <div class="siteLoader-text">
+      <span class="siteLoader-text-tag">VORAYOTE</span>
+      <span class="siteLoader-text-number">KAEWCHIT</span>
+    </div>
+  </div>
+
+  <div class="page-nav" aria-label="Page navigation">
+    <button type="button" class="nav-btn nav-up" aria-label="Scroll Up">↑</button>
+    <button type="button" class="nav-btn nav-down" aria-label="Scroll Down">↓</button>
+  </div>
+
+  <audio id="global-audio" preload="metadata"></audio>
+  </div><!-- /portfolio-content -->
+
+  <script src="js/lock-screen.js" defer></script>
+  <script src="js/security.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.9/dat.gui.min.js" defer></script>
+  <script src="js/player.js" defer></script>
+  <script src="js/winamp-player.js" defer></script>
+  <script src="js/winampFolders.js" defer></script>
+  <script src="js/main.js" defer></script>
+  <script src="js/nav-logo.js" defer></script>
+  <script src="js/winamp-ascii.js" defer></script>
+  <script src="js/hero.js" defer></script>
+  <script src="js/visualizer.js" defer></script>
+  <script src="js/pulse-visualizer.js" defer></script>
+  <script src="js/page-scroll-manager.js" defer></script>
+</body>
+</html>
