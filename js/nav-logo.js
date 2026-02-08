@@ -51,4 +51,5 @@
   if (loaderCircle) {
     drawCircle(loaderCircle, { size: 50, strokeColor: '#ffffff', animate: true, duration: 1200 });
   }
+
 })();

@@ -146,151 +146,6 @@ body {
 }
 
 /* ==========================================================================
-   VK Logo Lock Screen — Minimal + Elegant (Unlock to Particles Visualizer)
-   ========================================================================== */
-.lock-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  transition: opacity 0.5s var(--ease-year);
-}
-
-.lock-content {
-  text-align: center;
-  padding: var(--space-2xl);
-}
-
-.vk-logo {
-  font-size: clamp(4rem, 15vw, 8rem);
-  font-family: 'OCR A Std', 'OCR-A', var(--font-mono);
-  font-weight: 600;
-  letter-spacing: 0.3em;
-  background: linear-gradient(45deg, #00ffff, #ff00ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 2rem;
-  filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.5));
-}
-
-.lock-form {
-  display: flex;
-  gap: 1rem;
-  flex-direction: column;
-  align-items: center;
-}
-
-.lock-form #passwordInput {
-  width: 300px;
-  max-width: 90vw;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid #00ffff;
-  border-radius: 8px;
-  color: #fff;
-  font-family: var(--font-mono);
-  font-size: 1.2rem;
-  backdrop-filter: blur(10px);
-  outline: none;
-  transition: box-shadow 0.2s, border-color 0.2s;
-}
-
-.lock-form #passwordInput::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.lock-form #passwordInput:focus {
-  box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
-  border-color: #00ffff;
-}
-
-.lock-form #passwordInput.shake {
-  animation: lock-shake 0.4s ease-in-out;
-}
-
-@keyframes lock-shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-8px); }
-  40% { transform: translateX(8px); }
-  60% { transform: translateX(-6px); }
-  80% { transform: translateX(6px); }
-}
-
-.enter-btn {
-  padding: 0.75rem 2rem;
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  color: #0d0d0d;
-  background: linear-gradient(180deg, #00ffff 0%, #00aaaa 50%, #008888 100%);
-  border: 2px solid #00ffff;
-  border-radius: 8px;
-  cursor: pointer;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  transition: transform 0.1s, box-shadow 0.2s;
-}
-
-.enter-btn:hover {
-  box-shadow: 0 0 30px rgba(0, 255, 255, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-}
-
-.enter-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.attempts {
-  margin-top: 1.5rem;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.attempts.is-lockout {
-  color: #ff6b6b;
-}
-
-.portfolio-devtools-warning {
-  position: fixed;
-  bottom: var(--space-md);
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  z-index: 9998;
-  padding: var(--space-sm) var(--space-md);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.5);
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: var(--radius-md);
-  opacity: 0;
-  transition: opacity 0.3s, transform 0.3s;
-}
-.portfolio-devtools-warning.is-visible {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-.portfolio-devtools-text { margin: 0; }
-
-/* Portfolio content — hidden until unlock */
-.portfolio-content--locked {
-  display: none;
-  opacity: 0;
-}
-.portfolio-content {
-  transition: opacity 0.5s var(--ease-year);
-}
-
-/* ==========================================================================
    Header — YEAR0001: navLogo (canvas + text), navMobileButton, navList
    ========================================================================== */
 header {
@@ -477,23 +332,26 @@ header {
 .hero-particles {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
   z-index: 1;
   pointer-events: none;
-  contain: strict;
+  contain: layout style;
   will-change: transform;
   transform: translateZ(0);
 }
-
-.viz-fps {
+.hero-particles canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
   position: absolute;
-  bottom: 8px;
-  right: 12px;
-  z-index: 2;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.5);
-  pointer-events: none;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: auto;
 }
 
 /* Text overlay — YEAR0001 landingSlideshow-text */
@@ -579,6 +437,28 @@ header {
   transition: color var(--transition-year), opacity var(--transition-year);
 }
 .landingSlideshow-nav.leftBottomText:hover { color: var(--accent-red); }
+
+.hero-play-btn {
+  position: absolute;
+  right: var(--section-padding-x);
+  bottom: var(--section-padding-x);
+  z-index: 2;
+  pointer-events: auto;
+  padding: 0.4em 0.8em;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+.hero-play-btn:hover {
+  color: var(--text-light, #fff);
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.5);
+}
 
 /* ==========================================================================
    ASCII slideshow — square in the middle, shows ASCII from stock images
