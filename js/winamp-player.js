@@ -3,8 +3,8 @@
  * Uses global audio (setPlaylistTrack). Play, Pause, Prev, Next, Seek, Volume.
  */
 (function () {
-  var PLAYLIST_URL = 'assets/music/playlist.json';
-  var MUSIC_BASE = 'assets/music/';
+  var PLAYLIST_URL = new URL('assets/music/playlist.json', window.location.href).href;
+  var MUSIC_BASE = new URL('assets/music/', window.location.href).href.replace(/\/?$/, '/');
 
   var playlist = [];
   var currentIndex = -1;
@@ -29,7 +29,7 @@
     if (index < 0 || index >= playlist.length) return;
     currentIndex = index;
     var file = playlist[index];
-    var url = MUSIC_BASE + encodeURIComponent(file);
+    var url = MUSIC_BASE + file.split('/').map(function (seg) { return encodeURIComponent(seg); }).join('/');
     var name = file.replace(/\.[^.]+$/, '');
     if (typeof window.setPlaylistTrack === 'function') window.setPlaylistTrack(url, name);
     if (nowplayingEl) nowplayingEl.textContent = name;

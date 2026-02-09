@@ -1144,6 +1144,41 @@ header {
   color: var(--text-gray);
   font-style: italic;
 }
+
+.viz-playlist-label {
+  margin: var(--space-sm) 0 var(--space-xs);
+  color: var(--text-gray);
+  font-size: 10px;
+}
+
+.viz-playlist-wrap .viz-playlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.viz-playlist-wrap .viz-playlist li {
+  padding: var(--space-xs) var(--space-sm);
+  cursor: pointer;
+  color: var(--text-gray);
+  font-size: 10px;
+  border-radius: var(--radius-sm);
+  transition: background var(--wf-transition), color var(--wf-transition), box-shadow var(--wf-transition);
+  min-height: 24px;
+}
+
+.viz-playlist-wrap .viz-playlist li:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.viz-playlist-wrap .viz-playlist li.active {
+  background: rgba(0, 255, 255, 0.2);
+  color: var(--wf-cyan);
+}
+
 .viz-track {
   font-family: var(--font-mono);
   font-size: var(--viz-font-size);

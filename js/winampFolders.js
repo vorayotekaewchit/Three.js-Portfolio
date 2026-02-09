@@ -127,7 +127,7 @@
     var base = trackEl.dataset.base || MUSIC_BASE;
     if (!trackPath) return;
 
-    var url = base + encodeURIComponent(trackPath).replace(/%2F/g, "/");
+    var url = base + trackPath.split("/").map(function (seg) { return encodeURIComponent(seg); }).join("/");
     var displayName = formatTrackName(trackPath.split("/").pop() || trackPath);
 
     if (typeof window.setPlaylistTrack === "function") {
