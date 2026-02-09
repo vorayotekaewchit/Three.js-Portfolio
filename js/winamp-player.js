@@ -153,7 +153,7 @@
     listEl.innerHTML = '';
     playlist.forEach(function (file, i) {
       var li = document.createElement('li');
-      li.textContent = file.replace(/\.[^.]+$/, '');
+      li.textContent = file.split("/").pop().replace(/\.[^.]+$/, "") || file.replace(/\.[^.]+$/, "");
       li.setAttribute('data-index', i);
       if (i === currentIndex) li.classList.add('active');
       li.addEventListener('click', function () {

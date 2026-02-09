@@ -75,7 +75,8 @@
                   var name = o.name || o.path || "?";
                   var pathOrFolder = o.path || name;
                   var cover = o.cover || pathOrFolder + "/cover.png";
-                  return byArtist[name] || { artist: name, path: pathOrFolder, folderPath: pathOrFolder.indexOf("/") !== -1 ? pathOrFolder : null, cover: cover, tracks: [] };
+                  var tracks = Array.isArray(o.tracks) ? o.tracks : (byArtist[name] && byArtist[name].tracks) || [];
+                  return byArtist[name] ? Object.assign({}, byArtist[name], { artist: name, path: pathOrFolder, folderPath: pathOrFolder.indexOf("/") !== -1 ? pathOrFolder : null, cover: cover }) : { artist: name, path: pathOrFolder, folderPath: pathOrFolder.indexOf("/") !== -1 ? pathOrFolder : null, cover: cover, tracks: tracks };
                 });
                 callback(merged);
               })
