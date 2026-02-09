@@ -57,7 +57,30 @@
         if (href && href.indexOf('#') === 0) {
           setActiveNav(href.slice(1));
         }
+        var menu = a.closest('.navList-dropdown');
+        if (menu) {
+          menu.classList.remove('is-open');
+          var trigger = document.getElementById('nav-music-library-trigger');
+          if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        }
       });
+    });
+  }
+
+  var musicLibTrigger = document.getElementById('nav-music-library-trigger');
+  var musicLibMenu = document.getElementById('nav-music-library-menu');
+  if (musicLibTrigger && musicLibMenu) {
+    musicLibTrigger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var isOpen = musicLibMenu.classList.toggle('is-open');
+      musicLibTrigger.setAttribute('aria-expanded', isOpen);
+    });
+    document.addEventListener('click', function () {
+      musicLibMenu.classList.remove('is-open');
+      musicLibTrigger.setAttribute('aria-expanded', 'false');
+    });
+    musicLibMenu.addEventListener('click', function (e) {
+      e.stopPropagation();
     });
   }
 

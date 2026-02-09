@@ -1,8 +1,8 @@
 [
   {
-    "name": "Lune Playlist",
-    "path": "music/Lune Playlist",
-    "cover": "music/Lune Playlist/cover.png",
+    "name": "Lune Album",
+    "path": "music/Lune Album",
+    "cover": "music/Lune Album/cover.png",
     "tracks": ["Dying Star (Ft. Interstellar).mp3"]
   }
 ]

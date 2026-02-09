@@ -257,6 +257,13 @@
     if (nowplayingEl && playlist.length === 0) nowplayingEl.textContent = "No track loaded. Drop audio or use playlist.";
   }
 
+  function applyFoldersToPlaylist(folders) {
+    var list = Array.isArray(folders) ? folders : [];
+    renderPlaylistTree(list.map(function (o) {
+      return { name: o.name || o.artist || o.path, path: o.path || o.folderPath || o.name, cover: o.cover, tracks: o.tracks || [] };
+    }));
+  }
+
   function loadPlaylist() {
     fetch(FOLDERS_URL)
       .then(function (r) {
@@ -265,7 +272,7 @@
       })
       .then(function (arr) {
         var folders = Array.isArray(arr) ? arr : [];
-        renderPlaylistTree(folders);
+        applyFoldersToPlaylist(folders);
       })
       .catch(function () {
         playlist = [];
@@ -287,8 +294,22 @@
     });
   })();
 
+  var libraryReceived = false;
+  document.addEventListener("music-library-loaded", function (e) {
+    if (e.detail && e.detail.library) {
+      libraryReceived = true;
+      applyFoldersToPlaylist(e.detail.library);
+    }
+  });
   if (listEl || seekEl) {
-    loadPlaylist();
+    if (window.__musicLibrary && window.__musicLibrary.length) {
+      libraryReceived = true;
+      applyFoldersToPlaylist(window.__musicLibrary);
+    } else {
+      setTimeout(function () {
+        if (!libraryReceived) loadPlaylist();
+      }, 400);
+    }
     bindControls();
     var a = getAudio();
     if (volumeEl && a) {

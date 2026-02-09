@@ -27,10 +27,22 @@
       <button type="button" class="navMobileButton" aria-label="Toggle menu" aria-expanded="false">Menu</button>
       <ul class="navList">
         <li class="navList-item"><a href="#viz" class="typography-nav">Viz</a></li>
-        <li class="navList-item"><a href="#viz" class="typography-nav">Music</a></li>
+        <li class="navList-item navList-item--dropdown">
+          <button type="button" class="navList-dropdown-trigger typography-nav" aria-expanded="false" aria-haspopup="true" aria-controls="nav-music-library-menu" id="nav-music-library-trigger">Music Library</button>
+          <ul class="navList-dropdown" id="nav-music-library-menu" role="menu" aria-label="Music Library">
+            <li role="none"><a href="#viz" class="typography-nav" role="menuitem" data-music-view="tracks">All Tracks</a></li>
+            <li role="none"><a href="#viz" class="typography-nav" role="menuitem" data-music-view="playlists">Playlists</a></li>
+            <li role="none"><a href="#showcase" class="typography-nav" role="menuitem">Showcase</a></li>
+            <li class="navList-dropdown-sep" role="separator" aria-hidden="true"></li>
+            <li role="none"><a href="https://soundcloud.com/vorayotekaewchit" target="_blank" rel="noopener" class="typography-nav navList-dropdown-external" role="menuitem">Listen on SoundCloud</a></li>
+            <li role="none"><a href="https://vorayotekaewchit.bandcamp.com" target="_blank" rel="noopener" class="typography-nav navList-dropdown-external" role="menuitem">Listen on Bandcamp</a></li>
+            <li role="none"><a href="https://linktr.ee/vorayotekaewchit" target="_blank" rel="noopener" class="typography-nav navList-dropdown-external" role="menuitem">Discover more on Linktree</a></li>
+          </ul>
+        </li>
         <li class="navList-item"><a href="#about" class="typography-nav">About</a></li>
         <li class="navList-item"><a href="#projects" class="typography-nav">Projects</a></li>
         <li class="navList-item"><a href="#contact" class="typography-nav">Contact</a></li>
+        <li class="navList-item"><a href="#contact" class="typography-nav navList-cta" id="nav-cta">Work with me</a></li>
         <li class="navList-item"><a href="https://github.com/vorayotekaewchit" target="_blank" rel="noopener" class="typography-nav">GitHub</a></li>
       </ul>
     </nav>
@@ -50,6 +62,10 @@
             <div class="landingSlideshow-text-arrow"></div>
             &gt;
           </div>
+        </div>
+        <div class="hero-cta-wrap">
+          <a href="#contact" class="hero-cta typography-nav">Let's work together</a>
+          <a href="#projects" class="hero-cta hero-cta--secondary typography-nav">View work</a>
         </div>
       </div>
       <div class="hero-particles" id="hero-particles" aria-hidden="true"></div>
@@ -97,18 +113,10 @@
           <div class="viz-playlist-wrap">
             <div class="winamp-folders-panel" id="winamp-folders-panel">
               <button type="button" class="winamp-folders-toggle" id="winamp-folders-toggle" aria-expanded="true" aria-controls="winamp-folders-list-wrap">
-                MUSIC LIBRARY (<span id="winamp-folder-count">0</span>)
+                ALL TRACKS (<span id="winamp-folder-count">0</span>)
               </button>
               <div class="winamp-folders-list-wrap" id="winamp-folders-list-wrap" aria-hidden="false">
-                <ul class="winamp-folders-list" id="winamp-folders-list" role="listbox" aria-label="Artist folders"></ul>
-              </div>
-            </div>
-            <div class="winamp-folders-panel" id="winamp-playlist-panel">
-              <button type="button" class="winamp-folders-toggle" id="winamp-playlist-toggle" aria-expanded="true" aria-controls="winamp-playlist-list-wrap">
-                PLAYLIST (<span id="winamp-playlist-count">0</span>)
-              </button>
-              <div class="winamp-folders-list-wrap" id="winamp-playlist-list-wrap" aria-hidden="false">
-                <ul class="winamp-folders-list" id="winamp-playlist" role="listbox" aria-label="Playlist"></ul>
+                <ul class="winamp-folders-list" id="winamp-folders-list" role="listbox" aria-label="All tracks"></ul>
               </div>
             </div>
           </div>
@@ -131,6 +139,7 @@
               <input type="file" id="viz-audio-file" class="viz-file-input" accept="audio/*,.mp3,.m4a,.wav,.ogg,audio/mpeg,audio/mp4,audio/wav,audio/ogg" aria-label="Load audio">
             </label>
           </div>
+          <p class="viz-cta-wrap"><a href="#contact" class="section-cta section-cta--small">Commission a track</a></p>
         </div>
         <div class="viz-canvas-wrap" id="viz-drop-zone">
           <canvas class="viz-canvas" id="swiss-viz" aria-hidden="true"></canvas>
@@ -144,6 +153,18 @@
           <div class="section-body typography-p">
             <p>Fashion background, then full-stack development. Now working across AI, music, and creative code. Paris-based.</p>
             <p>Stack: Ableton, Three.js, Figma, Cursor, and more. Languages: French, English, Thai.</p>
+            <p><a href="#contact" class="section-cta">Work with me</a></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-showcase" id="showcase">
+        <div class="section-inner">
+          <p class="section-tag typography-caseTag">Showcase</p>
+          <h2 class="section-title typography-caseTitle">Selected pieces</h2>
+          <div class="section-body typography-p">
+            <p>Best-of and demo reels. Curated highlights from the library.</p>
+            <p><a href="#contact" class="section-cta">Collaborate</a></p>
           </div>
         </div>
       </section>
@@ -162,6 +183,7 @@
             <li><a href="https://github.com/vorayotekaewchit" target="_blank" rel="noopener">GitHub</a></li>
             <li><a href="https://soundcloud.com/vorayotekaewchit" target="_blank" rel="noopener">SoundCloud</a></li>
           </ul>
+          <p class="section-cta-wrap"><a href="#contact" class="section-cta">Let's build something</a></p>
         </div>
       </section>
 
@@ -184,6 +206,7 @@
         <li class="navList-item"><a href="#about" class="typography-nav">About</a></li>
         <li class="navList-item"><a href="#viz" class="typography-nav">Music</a></li>
         <li class="navList-item"><a href="#contact" class="typography-nav">Contact</a></li>
+        <li class="navList-item"><a href="#contact" class="typography-nav footer-cta">Work with me</a></li>
         <li class="navList-item"><a href="https://github.com/vorayote" target="_blank" rel="noopener" class="typography-nav">GitHub</a></li>
       </ul>
         <span class="newsLetterSignup"></span>
@@ -211,9 +234,6 @@
       <span class="siteLoader-text-number">KAEWCHIT</span>
     </div>
   </div>
-  <script>
-  (function(){ var l=document.getElementById('site-loader'); if(!l)return; function h(){ l.classList.add('is-hidden'); } if(document.readyState==='complete') h(); else window.addEventListener('load',h); setTimeout(h,2000); })();
-  </script>
 
   <div class="page-nav" aria-label="Page navigation">
     <button type="button" class="nav-btn nav-up" aria-label="Scroll Up">↑</button>

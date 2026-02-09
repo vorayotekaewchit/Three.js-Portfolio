@@ -110,7 +110,7 @@
     doPlay();
   }
 
-  if (vizPlayBtn) vizPlayBtn.addEventListener('click', play);
+  // Play: handled by winamp-player.js (playFirstOrSelectedTrack) so one handler only
   if (vizPauseBtn) vizPauseBtn.addEventListener('click', function () { audio.pause(); });
 
   if (vizVolumeEl) {

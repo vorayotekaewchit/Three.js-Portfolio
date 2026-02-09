@@ -4,7 +4,6 @@
  * Integrates with viz-controls and ASCII cover display.
  */
 (function () {
-  var MUSIC_JSON = "assets/music.json";
   var FOLDERS_JSON = "assets/music/folders.json";
   var MUSIC_BASE = "assets/music/";
   var ASSETS_BASE = "assets/";
@@ -39,50 +38,35 @@
     return (filename || "").replace(/\.[^.]+$/, "");
   }
 
+  /** Single fetch: folders.json. Normalize to library shape and share with winamp-player. */
   function loadLibrary(callback) {
-    fetch(MUSIC_JSON)
+    fetch(FOLDERS_JSON)
       .then(function (r) {
-        if (!r.ok) throw new Error("no music.json");
-        return r.json();
+        return r.ok ? r.json() : [];
       })
-      .then(function (data) {
-        var lib = data && data.library;
-        if (Array.isArray(lib) && lib.length) {
-          callback(lib);
-          return;
-        }
-        throw new Error("empty");
+      .then(function (arr) {
+        var lib = !Array.isArray(arr) || arr.length === 0 ? [] : arr.map(function (o) {
+          var name = o.name || o.path || "?";
+          var pathOrFolder = o.path || name;
+          var cover = o.cover || pathOrFolder + "/cover.png";
+          var tracks = Array.isArray(o.tracks) ? o.tracks : [];
+          return {
+            artist: name,
+            path: pathOrFolder,
+            folderPath: pathOrFolder.indexOf("/") !== -1 ? pathOrFolder : null,
+            cover: cover,
+            tracks: tracks
+          };
+        });
+        callback(lib);
+        window.__musicLibrary = lib;
+        try {
+          document.dispatchEvent(new CustomEvent("music-library-loaded", { detail: { library: lib } }));
+        } catch (e) {}
       })
       .catch(function () {
-        fetch(FOLDERS_JSON)
-          .then(function (r) {
-            return r.ok ? r.json() : [];
-          })
-          .then(function (arr) {
-            if (!Array.isArray(arr) || arr.length === 0) {
-              callback([]);
-              return;
-            }
-            fetch(MUSIC_JSON)
-              .then(function (r2) {
-                return r2.ok ? r2.json() : { library: [] };
-              })
-              .then(function (data2) {
-                var lib = (data2 && data2.library) || [];
-                var byArtist = {};
-                lib.forEach(function (e) { byArtist[e.artist] = e; });
-                var merged = arr.map(function (o) {
-                  var name = o.name || o.path || "?";
-                  var pathOrFolder = o.path || name;
-                  var cover = o.cover || pathOrFolder + "/cover.png";
-                  var tracks = Array.isArray(o.tracks) ? o.tracks : (byArtist[name] && byArtist[name].tracks) || [];
-                  return byArtist[name] ? Object.assign({}, byArtist[name], { artist: name, path: pathOrFolder, folderPath: pathOrFolder.indexOf("/") !== -1 ? pathOrFolder : null, cover: cover }) : { artist: name, path: pathOrFolder, folderPath: pathOrFolder.indexOf("/") !== -1 ? pathOrFolder : null, cover: cover, tracks: tracks };
-                });
-                callback(merged);
-              })
-              .catch(function () { callback([]); });
-          })
-          .catch(function () { callback([]); });
+        callback([]);
+        window.__musicLibrary = [];
       });
   }
 
