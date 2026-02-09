@@ -299,6 +299,7 @@
       renderer.setClearColor(0x000000, 0);
       renderer.autoClear = false;
       container.appendChild(renderer.domElement);
+      renderer.domElement.setAttribute("data-viz", "curl-particles");
       log("Renderer canvas appended to #hero-particles");
 
       var analyser = window.getAudioAnalyser && window.getAudioAnalyser();

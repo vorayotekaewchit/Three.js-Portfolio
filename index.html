@@ -118,9 +118,9 @@
               Vol
               <input type="range" class="viz-volume" id="winamp-volume" min="0" max="100" value="80" aria-label="Volume">
             </label>
-            <label class="viz-load-label">
+            <label class="viz-load-label" for="viz-audio-file">
               Load file
-              <input type="file" class="viz-file-input" accept="audio/*" aria-label="Load audio">
+              <input type="file" id="viz-audio-file" class="viz-file-input" accept="audio/*,.mp3,.m4a,.wav,.ogg,audio/mpeg,audio/mp4,audio/wav,audio/ogg" aria-label="Load audio">
             </label>
           </div>
         </div>
@@ -224,7 +224,7 @@
   <script src="js/image-to-ascii.js" defer></script>
   <script src="js/ascii-canvas-slideshow.js" defer></script>
   <script src="js/hero.js" defer></script>
-  <script src="js/audio-particles.js" defer></script>
+  <script src="js/audio-particles.js?v=2" defer></script>
   <script src="js/pulse-visualizer.js" defer></script>
   <script src="js/page-scroll-manager.js" defer></script>
 </body>
