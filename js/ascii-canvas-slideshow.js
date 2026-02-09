@@ -1,17 +1,15 @@
 /**
- * ASCII canvas slideshow.
- * year0001.com: 1510×1510 canvas, CLICK-TO-TOGGLE Image ↔ ASCII (108×63, 512-char density).
- * Fallback: 80×48 slideshow + folder view when .winamp-ascii-canvas is used.
+ * ASCII canvas slideshow — click-to-toggle image/ASCII, tag overlay, nav.
  * Depends: character-set.js, image-to-ascii.js (CharacterSet, ImageToAscii on window).
  */
 (function () {
   var ASCII_COLS = 80;
   var ASCII_ROWS = 48;
-  /* year0001 exact — 108×108 grid, 14px chars, 1512 canvas for pixel-perfect fill */
-  var YEAR0001_COLS = 108;
-  var YEAR0001_ROWS = 108;
-  var YEAR0001_CHAR_SIZE = 14;
-  var YEAR0001_SIZE = 1512;
+  /* High-res ASCII: 108×108 grid, 14px chars, 1512 canvas for pixel-perfect fill */
+  var ASCII_CANVAS_COLS = 108;
+  var ASCII_CANVAS_ROWS = 108;
+  var ASCII_CANVAS_CHAR_SIZE = 14;
+  var ASCII_CANVAS_SIZE = 1512;
   var SLIDE_DURATION_MS = 5500;
   var MUSIC_BASE = "assets/music/";
   var ASSETS_BASE = "assets/";
@@ -246,16 +244,16 @@
   var lastFontSize = 0;
 
   /**
-   * year0001.com: Dual-mode renderer — single click toggles RAW IMAGE ↔ ASCII (108×108, pixel-perfect).
+   * Dual-mode renderer — single click toggles RAW IMAGE ↔ ASCII (108×108, pixel-perfect).
    * Canvas 1512×1512; 14×14px chars; textBaseline=top, textAlign=left for zero gaps.
    */
   function ToggleAsciiRenderer(canvasEl) {
     this.canvas = canvasEl;
     this.ctx = canvasEl.getContext("2d");
-    this.cols = YEAR0001_COLS;
-    this.rows = YEAR0001_ROWS;
-    this.size = YEAR0001_SIZE;
-    this.charSize = YEAR0001_CHAR_SIZE;
+    this.cols = ASCII_CANVAS_COLS;
+    this.rows = ASCII_CANVAS_ROWS;
+    this.size = ASCII_CANVAS_SIZE;
+    this.charSize = ASCII_CANVAS_CHAR_SIZE;
     this.isAsciiMode = false;
     this.currentImage = null;
     this.currentAsciiGrid = null;
@@ -312,7 +310,7 @@
     }
   };
 
-  /** Derive tag and title from image URL and index (year0001-style: tag = short id, title = display name). */
+  /** Derive tag and title from image URL and index (tag = short id, title = display name). */
   function slugFromUrl(url, index) {
     var filename = (url && url.split("/").pop()) ? decodeURIComponent(url.split("/").pop()) : "";
     var base = filename.replace(/\.[^.]+$/, "").trim() || "slide";
@@ -330,8 +328,8 @@
     var titleEl = document.getElementById("ascii-slide-title");
     var bodyEl = document.getElementById("ascii-slide-body");
     if (!canvasEl || !canvasEl.getContext("2d")) return;
-    canvasEl.width = YEAR0001_SIZE;
-    canvasEl.height = YEAR0001_SIZE;
+    canvasEl.width = ASCII_CANVAS_SIZE;
+    canvasEl.height = ASCII_CANVAS_SIZE;
     var renderer = new ToggleAsciiRenderer(canvasEl);
     var slideIndex = 0;
     var slideUrls = [];
@@ -359,7 +357,7 @@
       updateCaption();
     }
 
-    /** Build year0001-style slide divs: img + slide-text (tag, title). */
+    /** Build slide divs: img + slide-text (tag, title). */
     function buildSlidesDOM(urls) {
       if (!slidesContainer || !urls.length) return;
       slidesContainer.innerHTML = "";
@@ -384,7 +382,7 @@
       });
     }
 
-    /** Build nav items (year0001: ": TAG" per slide), click -> goToSlide(i). */
+    /** Build nav items (": TAG" per slide), click -> goToSlide(i). */
     function buildNavDOM(urls, goToFn) {
       if (!navContainer || !urls.length) return;
       navContainer.innerHTML = "";
@@ -408,7 +406,7 @@
       });
     }
 
-    /** Sync overlay text and active states (year0001: tag, title, body + active slide/nav). */
+    /** Sync overlay text and active states (tag, title, body + active slide/nav). */
     function updateOverlayAndActive(index) {
       if (slideUrls.length === 0) return;
       var meta = slugFromUrl(slideUrls[index], index);
@@ -449,7 +447,7 @@
         cb(null);
         return;
       }
-      window.ImageToAscii.loadImageAndConvertToAscii(url, YEAR0001_COLS, YEAR0001_ROWS, opts, cb, function () { cb(null); });
+      window.ImageToAscii.loadImageAndConvertToAscii(url, ASCII_CANVAS_COLS, ASCII_CANVAS_ROWS, opts, cb, function () { cb(null); });
     }
 
     function goToSlide(index) {
@@ -522,7 +520,7 @@
         var emptyCtx = canvasEl.getContext("2d");
         if (emptyCtx) {
           emptyCtx.fillStyle = "#0a0a0a";
-          emptyCtx.fillRect(0, 0, YEAR0001_SIZE, YEAR0001_SIZE);
+          emptyCtx.fillRect(0, 0, ASCII_CANVAS_SIZE, ASCII_CANVAS_SIZE);
         }
         return;
       }

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Vorayote Kaewchit — UI/UX inspired by YEAR0001 (Assetsss reference)
+   Vorayote Kaewchit — portfolio styles
    Typography: DIN/Akkurat-Mono → Inter/IBM Plex Mono; easing: cubic-bezier(0,0,0.2,1)
    ========================================================================== */
 
@@ -58,7 +58,7 @@
   --theme-color: #0d0d0d;
 }
 
-/* YEAR0001 typography classes (from Assetsss application CSS) */
+/* Typography classes */
 .typography-nav {
   font-family: var(--font-sans);
   font-size: 10px;
@@ -146,7 +146,7 @@ body {
 }
 
 /* ==========================================================================
-   Header — YEAR0001: navLogo (canvas + text), navMobileButton, navList
+   Header — navLogo (canvas + text), navMobileButton, navList
    ========================================================================== */
 header {
   position: fixed;
@@ -288,7 +288,7 @@ header {
 }
 
 /* ==========================================================================
-   barba-container — YEAR0001 main wrapper (slideshow + content)
+   barba-container — main wrapper (slideshow + content)
    ========================================================================== */
 .barba-container {
   margin-left: 0;
@@ -297,7 +297,7 @@ header {
 }
 
 /* ==========================================================================
-   landingSlideshow — YEAR0001 hero: full viewport, canvas + text overlay
+   landingSlideshow — hero: full viewport, canvas + text overlay
    ========================================================================== */
 .landingSlideshow {
   position: relative;
@@ -354,7 +354,7 @@ header {
   pointer-events: auto;
 }
 
-/* Text overlay — YEAR0001 landingSlideshow-text */
+/* Text overlay — landingSlideshow-text */
 .landingSlideshow-text {
   position: relative;
   z-index: 2;
@@ -422,7 +422,7 @@ header {
   border-bottom: 4px solid transparent;
 }
 
-/* Left bottom nav text — YEAR0001 leftBottomText */
+/* Left bottom nav text — leftBottomText */
 .landingSlideshow-nav.leftBottomText {
   position: absolute;
   left: var(--section-padding-x);
@@ -493,7 +493,7 @@ header {
   flex-shrink: 0;
 }
 
-/* year0001.com exact: 1512×1512 canvas, 108×108 chars, pixel-perfect fill */
+/* ASCII slideshow: 1512×1512 canvas, 108×108 chars, pixel-perfect fill */
 .landingSlideshow-asciiWrap {
   position: relative;
   width: min(90vmin, 520px);
@@ -554,7 +554,7 @@ header {
   z-index: 0;
 }
 
-/* year0001-style ASCII slideshow: canvas + text overlay + nav */
+/* ASCII slideshow block: canvas + text overlay + nav */
 .section-ascii .landingSlideshow--ascii {
   position: relative;
   display: flex;
@@ -583,7 +583,7 @@ header {
   color: inherit;
 }
 
-/* Hidden slide divs (data source for canvas/text; year0001 keeps these in DOM with opacity: 0) */
+/* Hidden slide divs (data source for canvas/text) */
 .landingSlideshow-slides {
   position: absolute;
   width: 0;
@@ -1247,7 +1247,7 @@ header {
 }
 
 /* ==========================================================================
-   Footer — YEAR0001: navList-footer, footerText, footerText-mobile, footerImg
+   Footer — navList-footer, footerText, footerText-mobile, footerImg
    ========================================================================== */
 footer {
   padding: var(--space-xl) var(--section-padding-x);
@@ -1318,7 +1318,7 @@ footer:hover .footerImg {
 }
 
 /* ==========================================================================
-   siteLoader — YEAR0001: logo (circle canvas + text), two-line text
+   siteLoader — logo (circle canvas + text), two-line text
    ========================================================================== */
 .siteLoader {
   position: fixed;

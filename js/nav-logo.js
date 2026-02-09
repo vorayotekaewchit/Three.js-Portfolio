@@ -1,5 +1,5 @@
 /**
- * Nav + loader logo circles — YEAR0001-style stroke circle animation
+ * Nav + loader logo circles — stroke circle animation
  * Draws on navLogo-circle and siteLoader-circle (canvas)
  */
 (function () {

@@ -1,5 +1,5 @@
 /**
- * Main — nav toggle, player panel toggle, loader, nav active state (YEAR0001-style)
+ * Main — nav toggle, player panel toggle, loader, nav active state
  */
 (function () {
   const navBtn = document.querySelector('.navMobileButton');
