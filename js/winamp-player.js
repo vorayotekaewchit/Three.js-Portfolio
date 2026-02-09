@@ -181,10 +181,26 @@
     playlistExpanded[key] = expanded;
   }
 
-  function renderPlaylistTree(folders) {
-    if (!listEl) return;
-    listEl.innerHTML = "";
+  function buildPlaylistFromFolders(folders) {
     playlist = [];
+    folders.forEach(function (entry) {
+      var pathPrefix = entry.path || entry.name || "?";
+      var tracks = Array.isArray(entry.tracks) ? entry.tracks : [];
+      tracks.forEach(function (file) {
+        playlist.push(pathPrefix + "/" + file);
+      });
+    });
+  }
+
+  function renderPlaylistTree(folders) {
+    buildPlaylistFromFolders(folders);
+    if (!listEl) {
+      if (countEl) countEl.textContent = playlist.length;
+      if (playlist.length && typeof window.setVizControlsEnabled === "function") window.setVizControlsEnabled(true);
+      if (nowplayingEl && playlist.length === 0) nowplayingEl.textContent = "No track loaded. Drop audio or use playlist.";
+      return;
+    }
+    listEl.innerHTML = "";
 
     folders.forEach(function (entry) {
       var name = entry.name || entry.path || "?";
@@ -218,9 +234,7 @@
       } else {
         tracks.forEach(function (file) {
           var fullPath = pathPrefix + "/" + file;
-          var idx = playlist.length;
-          playlist.push(fullPath);
-
+          var idx = playlist.indexOf(fullPath);
           var trackLi = document.createElement("li");
           trackLi.textContent = formatTrackName(file);
           trackLi.title = file;
@@ -261,19 +275,7 @@
       });
   }
 
-  (function initPlaylistPanelToggle() {
-    var toggle = document.getElementById("winamp-playlist-toggle");
-    var wrap = document.getElementById("winamp-playlist-list-wrap");
-    var panel = document.getElementById("winamp-playlist-panel");
-    if (!toggle || !wrap || !panel) return;
-    toggle.addEventListener("click", function () {
-      var collapsed = panel.classList.toggle("is-collapsed");
-      toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
-      wrap.setAttribute("aria-hidden", collapsed ? "true" : "false");
-    });
-  })();
-
-  if (listEl || seekEl) {
+  if (seekEl) {
     loadPlaylist();
     bindControls();
     var a = getAudio();
