@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "music-scan": "node scripts/music-scanner.js",
-    "dev": "npm run music-scan",
+    "dev": "vite",
     "build:prod": "vite build --mode production",
     "preview": "vite preview",
     "deploy:demo": "npm run build:prod && netlify deploy --prod",

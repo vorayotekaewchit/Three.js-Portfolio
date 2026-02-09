@@ -1,6 +1,8 @@
 # Three.js Portfolio
 
-Static portfolio: Three.js hero particles, ASCII slideshow, audio viz. No build step.
+Static portfolio: Three.js hero particles, ASCII slideshow (year0001-style pixel-perfect), audio viz. No build step.
+
+**ASCII slideshow:** Images from `assets/ascii/images.json` are shown; click the canvas to toggle **image** ↔ **ASCII**. Quality is fixed when the ASCII is generated (high-res sampling in pixelperfect mode); the toggle only switches which view is visible.
 
 ## Does audio play on the site?
 
@@ -16,9 +18,19 @@ Right now there are no audio files in `assets/music/` in the repo, so the Music 
 
 ## Run locally
 
+**Recommended — Vite dev server (fast refresh, correct paths):**
+
+```bash
+npm run dev
+```
+
+Then open **http://localhost:5173** in your browser.
+
+**Other options:**
+
 ```bash
 npx serve
-# or open index.html in a browser
+# or open index.html in a browser (some features may need a real server)
 ```
 
 ## Deploy on GitHub Pages

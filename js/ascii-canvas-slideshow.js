@@ -1,6 +1,7 @@
 /**
  * ASCII canvas slideshow — click-to-toggle image/ASCII, tag overlay, nav.
  * Depends: character-set.js, image-to-ascii.js (CharacterSet, ImageToAscii on window).
+ * Pixel-perfect: 108×108 grid, 14px chars, 1512 canvas.
  */
 (function () {
   var ASCII_COLS = 80;

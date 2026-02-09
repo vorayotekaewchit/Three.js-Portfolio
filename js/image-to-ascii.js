@@ -25,10 +25,13 @@
 
   /**
    * Convert image (canvas Image or HTMLImageElement) to ASCII grid.
+   * For pixelperfect mode uses high-res sampling (year0001-style): sample at 4x resolution
+   * and average each cell for sharper, denser output. Toggle (ASCII ↔ image) does not affect
+   * quality — it only switches which view is shown; quality is fixed at generation time.
    * @param {HTMLImageElement|HTMLCanvasElement} img
    * @param {number} cols - character columns (capped to MIN_WIDTH..MAX_WIDTH)
    * @param {number} rows - character rows
-   * @param {Object} options - { charsetMode: 'full'|'english'|'density', useSafeChar: boolean }
+   * @param {Object} options - { charsetMode: 'full'|'english'|'pixelperfect', useSafeChar: boolean }
    * @returns {Array} grid[r][c] = { char, r, g, b }
    */
   function imageToAsciiGrid(img, cols, rows, options) {
@@ -38,13 +41,6 @@
     cols = Math.max(8, Math.min(MAX_WIDTH, cols || DEFAULT_COLS));
     rows = Math.max(4, Math.min(200, rows || DEFAULT_ROWS));
 
-    var canvas = document.createElement("canvas");
-    canvas.width = cols;
-    canvas.height = rows;
-    var ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0, cols, rows);
-    var data = ctx.getImageData(0, 0, cols, rows).data;
-
     var getChar = charsetMode === "english"
       ? CharacterSet.getCharForDensityEnglish
       : charsetMode === "pixelperfect"
@@ -52,12 +48,64 @@
         : CharacterSet.getCharForDensity;
     var safeChar = CharacterSet.getSafeChar;
     var grid = [];
-    var r, c, i, red, green, blue, lum, level, ch, variety;
+    var r, c, red, green, blue, lum, level, ch, variety;
+
+    /* Pixel-perfect (year0001-style): sample at 16x resolution (1728×1728 for 108×108) and average each cell */
+    if (charsetMode === "pixelperfect") {
+      var sampleScale = 16;
+      var sampleW = cols * sampleScale;
+      var sampleH = rows * sampleScale;
+      var canvas = document.createElement("canvas");
+      canvas.width = sampleW;
+      canvas.height = sampleH;
+      var ctx = canvas.getContext("2d");
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, sampleW, sampleH);
+      var data = ctx.getImageData(0, 0, sampleW, sampleH).data;
+
+      for (r = 0; r < rows; r++) {
+        grid[r] = [];
+        for (c = 0; c < cols; c++) {
+          var rSum = 0, gSum = 0, bSum = 0, n = 0;
+          var y0 = r * sampleScale;
+          var x0 = c * sampleScale;
+          var y1 = Math.min(y0 + sampleScale, sampleH);
+          var x1 = Math.min(x0 + sampleScale, sampleW);
+          for (var py = y0; py < y1; py++) {
+            for (var px = x0; px < x1; px++) {
+              var i = (py * sampleW + px) * 4;
+              rSum += data[i];
+              gSum += data[i + 1];
+              bSum += data[i + 2];
+              n++;
+            }
+          }
+          red = n > 0 ? Math.round(rSum / n) : 0;
+          green = n > 0 ? Math.round(gSum / n) : 0;
+          blue = n > 0 ? Math.round(bSum / n) : 0;
+          lum = getLuminance(red, green, blue);
+          level = brightnessToLevel(lum);
+          variety = r * cols + c;
+          ch = getChar(level, variety);
+          if (useSafeChar) ch = safeChar(ch);
+          grid[r][c] = { char: ch, r: red, g: green, b: blue };
+        }
+      }
+      return grid;
+    }
+
+    var canvas = document.createElement("canvas");
+    canvas.width = cols;
+    canvas.height = rows;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, cols, rows);
+    var data = ctx.getImageData(0, 0, cols, rows).data;
 
     for (r = 0; r < rows; r++) {
       grid[r] = [];
       for (c = 0; c < cols; c++) {
-        i = (r * cols + c) * 4;
+        var i = (r * cols + c) * 4;
         red = data[i];
         green = data[i + 1];
         blue = data[i + 2];
