@@ -205,6 +205,11 @@
   }
 
   function playFirstOrSelectedTrack() {
+    var audio = typeof window.getGlobalAudio === "function" ? window.getGlobalAudio() : null;
+    if (audio && audio.src && audio.src.indexOf("blob:") === 0) {
+      audio.play().catch(function () {});
+      return;
+    }
     if (currentTrackEl) {
       playTrack(currentTrackEl);
       return;
@@ -215,7 +220,6 @@
       playTrack(first);
       return;
     }
-    var audio = typeof window.getGlobalAudio === "function" ? window.getGlobalAudio() : null;
     if (audio) audio.play().catch(function () {});
   }
 
