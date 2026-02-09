@@ -359,9 +359,18 @@
     });
   }
 
+  function bindHeroPlayButton() {
+    var heroPlayBtn = document.getElementById("hero-play-btn");
+    if (!heroPlayBtn) return;
+    heroPlayBtn.addEventListener("click", function () {
+      playFirstOrSelectedTrack();
+    });
+  }
+
   function init() {
     bindRootToggle();
     setupKeyboard();
+    bindHeroPlayButton();
     loadLibrary(render);
   }
 

@@ -275,7 +275,19 @@
       });
   }
 
-  if (seekEl) {
+  (function initPlaylistPanelToggle() {
+    var toggle = document.getElementById("winamp-playlist-toggle");
+    var wrap = document.getElementById("winamp-playlist-list-wrap");
+    var panel = document.getElementById("winamp-playlist-panel");
+    if (!toggle || !wrap || !panel) return;
+    toggle.addEventListener("click", function () {
+      var collapsed = panel.classList.toggle("is-collapsed");
+      toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      wrap.setAttribute("aria-hidden", collapsed ? "true" : "false");
+    });
+  })();
+
+  if (listEl || seekEl) {
     loadPlaylist();
     bindControls();
     var a = getAudio();
